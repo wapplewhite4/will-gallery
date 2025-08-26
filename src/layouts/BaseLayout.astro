@@ -1,0 +1,103 @@
+---
+import "~/styles/reset.css";
+import "~/styles/base.css";
+import smartypants from "smartypants";
+
+const siteName = "Astro Photo Grid";
+
+export interface Props {
+  title: string;
+  description: string;
+  image?: { src: string; alt: string };
+}
+
+const { title, description, image } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const pageTitle = Astro.url.pathname === "/" ? title : `${title} · ${siteName}`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title set:html={smartypants(pageTitle, 1)} />
+    <meta name="description" content={smartypants(description, 1)} />
+    <meta property="og:title" content={smartypants(title, 1)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content={smartypants(description, 1)} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content={siteName} />
+    {image && (
+      <>
+        <meta property="og:image" content={image.src} />
+        <meta property="og:image:alt" content={image.alt} />
+      </>
+    )}
+
+    <!-- Minimal navbar styles (no Tailwind) -->
+    <style>
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: saturate(180%) blur(8px);
+        background: rgba(255,255,255,0.85);
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+      }
+      .navbar-inner {
+        max-width: 72rem;        /* keeps the whole bar constrained */
+        margin: 0 auto;
+        padding: 0.75rem 0 0.75rem 0.5rem;  /* less left padding */
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand {
+        font-weight: 700;
+        font-size: clamp(1.5rem, 2vw + 1rem, 2.5rem); /* responsive size */
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        color: #111827; /* neutral-900 */
+        text-decoration: none;
+      }
+      .brand:hover { opacity: 0.8; }
+      .links {
+        display: flex;
+        gap: 1.25rem; /* 20px */
+        font-size: 0.95rem;
+        font-weight: 500;
+      }
+      .links a {
+        color: #111827;
+        text-decoration: none;
+      }
+      .links a:hover { text-decoration: underline; }
+      @media (max-width: 480px) {
+        .navbar-inner { padding: 0.5rem 0.75rem; }
+        .links { gap: 0.9rem; font-size: 0.9rem; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ✅ Navbar is now inside <body> -->
+    <header class="navbar">
+      <nav class="navbar-inner">
+        <a href="/" class="brand">William Applewhite</a>
+        <div class="links">
+          <a href="/">Portfolio</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Page content -->
+    <slot />
+  </body>
+</html>

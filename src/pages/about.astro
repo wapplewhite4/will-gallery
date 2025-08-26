@@ -1,0 +1,63 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="About — William Applewhite"
+  description="About William Applewhite"
+>
+  <main class="about-wrap">
+    <h1 class="about-title">About</h1>
+
+    <section class="about-box">
+      <div class="about-columns">
+        <p>
+          Hi, I’m William Applewhite — I'm a multidisciplinary artist based in the Triangle area of North Carolina, where I’ve lived my entire life. I studied visual arts at the Durham School of the Arts and then continued my education at UNC-Chapel Hill, cultivating a practice rooted in both local identity and conceptual inquiry. My work explores the increasingly fragile boundary between the natural and artificial.
+        </p>
+
+        <p>
+          Primarily working with gouache and pen on art board, I examine how technology and synthetic structures both mirror and distort organic forms. Rather than treating nature and human-made systems as opposites, I’m interested in their entanglement—how one bleeds into the other, reshaping our environments and perceptions. I invite viewers to consider how these dualities coexist and evolve, often in tension, often in harmony.
+        </p>
+
+        <!-- Add more paragraphs as needed; they will flow across columns -->
+      </div>
+    </section>
+  </main>
+
+  <style>
+    /* Page container */
+    .about-wrap {
+      max-width: 56rem; /* ~896px */
+      margin: 0 auto;
+      padding: 3rem 1rem;
+    }
+
+    .about-title {
+      font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 0 0 1.25rem;
+      color: #111827; /* neutral-900 */
+    }
+
+    /* Boxed section */
+    .about-box {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 1.25rem 1rem;
+      box-shadow:
+        0 1px 2px rgba(0,0,0,0.04),
+        0 8px 24px rgba(0,0,0,0.04);
+    }
+    @media (min-width: 768px) {
+      .about-box { padding: 2rem 2rem; }
+    }
+
+    /* Two-column flowing text */
+    .about-columns {
+      column-count: 1;
+      column-gap: 2rem;
+    }
+    @media (min-width: 900px) {
+      .

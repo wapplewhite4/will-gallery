@@ -1,0 +1,74 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Contact — William Applewhite"
+  description="Contact page for William Applewhite"
+>
+  <main class="contact-wrap">
+    <h1 class="contact-title">Contact</h1>
+
+    <section class="contact-box">
+      <p>
+        If you’d like to get in touch, feel free to reach out through the
+        following channels:
+      </p>
+      <ul>
+        <li>Email: <a href="mailto:wapplewhite4@gmail.com">wapplewhite4@gmail.com</a></li>
+        <li>Instagram: <a href="https://instagram.com/crittr_not_critter" target="_blank">@crittr_not_critter</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <style>
+    .contact-wrap {
+      max-width: 42rem; /* ~672px */
+      margin: 0 auto;
+      padding: 3rem 1rem;
+    }
+
+    .contact-title {
+      font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem);
+      font-weight: 600;
+      margin: 0 0 1.25rem;
+      color: #111827;
+    }
+
+    .contact-box {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow:
+        0 1px 2px rgba(0,0,0,0.04),
+        0 8px 24px rgba(0,0,0,0.04);
+    }
+
+    .contact-box p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      color: #1f2937; /* neutral-800 */
+    }
+
+    .contact-box ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .contact-box li {
+      margin-bottom: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .contact-box a {
+      color: #2563eb; /* blue-600 */
+      text-decoration: none;
+    }
+
+    .contact-box a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</BaseLayout>
