@@ -1,0 +1,5 @@
+# Force HTTPS
+http://*    https://:splat    301!
+
+# Redirect www to root domain
+https://www.willapplewhite.com/*    https://willapplewhite.com/:splat    301!
