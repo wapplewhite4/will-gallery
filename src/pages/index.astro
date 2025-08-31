@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
@@ -24,13 +24,13 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
             target="_blank"
             data-fancybox="gallery"
           >
+            <!-- Bigger responsive candidates for sharp thumbs on Retina -->
+            <!-- Estimated on-screen width per item for your justified rows -->
             <Image
               src={imageData}
               alt=""
               format="webp"
-              {/* Bigger responsive candidates for sharp thumbs on Retina */}
               widths={[320, 480, 720, 960, 1280, 1600]}
-              {/* Estimated on-screen width per item for your justified rows */}
               sizes="(max-width: 640px) 48vw, (max-width: 1024px) 30vw, (max-width: 1440px) 22vw, 18vw"
               quality={82}
               loading={index < 20 ? "eager" : "lazy"}
