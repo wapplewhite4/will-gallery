@@ -47,24 +47,24 @@
   const SEPARATION_DIST = 32;
 
   // Rule strengths
-  const ALIGN_STRENGTH = 0.055;
-  const COHESION_STRENGTH = 0.008;   // gentler cohesion
-  const SEPARATION_STRENGTH = 0.45;  // stronger separation
+  const ALIGN_STRENGTH = 0.065;
+  const COHESION_STRENGTH = 0.014;   // gentler cohesion
+  const SEPARATION_STRENGTH = 0.28;  // stronger separation
 
   const MAX_SPEED = 2.2;
   const MAX_ACCEL = 0.15;            // cap instantaneous acceleration
 
   // Mouse attraction with dead zone and smooth falloff
-  const MOUSE_MAX_FORCE = 0.05;
-  const MOUSE_DEAD_RADIUS = 90;      // no attraction inside this radius
-  const MOUSE_FALLOFF = 160;         // how quickly force ramps beyond dead zone
+  const MOUSE_MAX_FORCE = 0.08;
+  const MOUSE_DEAD_RADIUS = 70;      // no attraction inside this radius
+  const MOUSE_FALLOFF = 200;         // how quickly force ramps beyond dead zone
 
-  const NOISE = 0.028;               // tiny jitter to avoid crystallizing
+  const NOISE = 0.018;               // tiny jitter to avoid crystallizing
 
   // ----- Drag-scatter tuning -----
-  const DRAG_SPEED_THRESHOLD = 350;  // px/s needed to start scattering
-  const DRAG_REPULSE_RADIUS  = 160;  // boids within this get pushed
-  const DRAG_REPULSE_MAX     = 0.65; // max extra accel from drag
+  const DRAG_SPEED_THRESHOLD = 550;  // px/s needed to start scattering
+  const DRAG_REPULSE_RADIUS  = 150;  // boids within this get pushed
+  const DRAG_REPULSE_MAX     = 0.45; // max extra accel from drag
   const DRAG_NOISE_BOOST     = 0.04; // extra noise while dragging fast
 
   // ----- State -----
@@ -162,7 +162,7 @@
         const d = md - MOUSE_DEAD_RADIUS;
         // Asymptotic approach to MOUSE_MAX_FORCE
         const k = MOUSE_MAX_FORCE * (1 - Math.exp(-d / MOUSE_FALLOFF));
-        const pressBoost = mouse.down ? 1.6 : 1.0;
+        const pressBoost = mouse.down ? 2.2 : 1.0;
         ax += (mdx / md) * k * pressBoost;
         ay += (mdy / md) * k * pressBoost;
       }
