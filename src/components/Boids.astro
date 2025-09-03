@@ -1,0 +1,121 @@
+---
+const width = 1200; // you can set to `undefined` to auto-fill parent
+const height = 700;
+const NUM = 300;
+const MOUSE_FORCE = 0.08;
+const MAX_SPEED = 2.2;
+const ALIGN_DIST = 40;
+const COHESION_DIST = 45;
+const SEPARATION_DIST = 20;
+const ALIGN_STRENGTH = 0.05;
+const COHESION_STRENGTH = 0.03;
+const SEPARATION_STRENGTH = 0.15;
+---
+<style>
+  .boids-wrap { position: relative; width: 100%; height: 500px; }
+  canvas { width: 100%; height: 100%; display: block; border-radius: 16px; }
+</style>
+
+<div class="boids-wrap">
+  <canvas id="boids" width={width} height={height}></canvas>
+</div>
+
+<script client:load>
+  const canvas = document.getElementById('boids');
+  const ctx = canvas.getContext('2d');
+
+  // Fit to container if width/height omitted
+  if (!{width} || !{height}) {
+    const parent = canvas.parentElement;
+    const rect = parent.getBoundingClientRect();
+    canvas.width = Math.floor(rect.width);
+    canvas.height = Math.floor(rect.height);
+    window.addEventListener('resize', () => {
+      const r = parent.getBoundingClientRect();
+      canvas.width = Math.floor(r.width);
+      canvas.height = Math.floor(r.height);
+    });
+  }
+
+  const W = canvas.width, H = canvas.height;
+  const rand = (a,b)=>a+Math.random()*(b-a);
+
+  const boids = Array.from({length: {NUM}}, () => ({
+    x: rand(0, W), y: rand(0, H),
+    vx: rand(-1,1), vy: rand(-1,1),
+  }));
+
+  const mouse = { x: W/2, y: H/2, down:false };
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mouse.x = (e.clientX - r.left) * (canvas.width / r.width);
+    mouse.y = (e.clientY - r.top)  * (canvas.height / r.height);
+  });
+  canvas.addEventListener('mousedown', ()=>mouse.down=true);
+  canvas.addEventListener('mouseup', ()=>mouse.down=false);
+  canvas.addEventListener('mouseleave', ()=>mouse.down=false);
+
+  const limit = (vx, vy, max) => {
+    const s = Math.hypot(vx, vy);
+    if (s > max) { vx = vx/s*max; vy = vy/s*max; }
+    return [vx, vy];
+  };
+
+  function step() {
+    // Simple neighborhood loop (O(n²)); fine for a few hundred boids.
+    for (let i=0;i<boids.length;i++) {
+      const b = boids[i];
+      let alignX=0, alignY=0, cohX=0, cohY=0, sepX=0, sepY=0;
+      let alignN=0, cohN=0, sepN=0;
+
+      for (let j=0;j<boids.length;j++) if (i!==j) {
+        const o = boids[j];
+        const dx = o.x - b.x, dy = o.y - b.y;
+        const d = Math.hypot(dx, dy);
+        if (d < {ALIGN_DIST}) { alignX += o.vx; alignY += o.vy; alignN++; }
+        if (d < {COHESION_DIST}) { cohX += o.x; cohY += o.y; cohN++; }
+        if (d < {SEPARATION_DIST}) { sepX -= dx/(d||1); sepY -= dy/(d||1); sepN++; }
+      }
+
+      let ax=0, ay=0;
+      if (alignN) { ax += ((alignX/alignN) - b.vx) * {ALIGN_STRENGTH}; ay += ((alignY/alignN) - b.vy) * {ALIGN_STRENGTH}; }
+      if (cohN)   { ax += ((cohX/cohN) - b.x) * {COHESION_STRENGTH}; ay += ((cohY/cohN) - b.y) * {COHESION_STRENGTH}; }
+      if (sepN)   { ax += (sepX/sepN) * {SEPARATION_STRENGTH}; ay += (sepY/sepN) * {SEPARATION_STRENGTH}; }
+
+      // Mouse attractor (stronger when mouse is down)
+      const mdx = mouse.x - b.x, mdy = mouse.y - b.y;
+      const md = Math.hypot(mdx, mdy) || 1;
+      const attract = {MOUSE_FORCE} * (mouse.down ? 2.0 : 1.0);
+      ax += (mdx/md) * attract;
+      ay += (mdy/md) * attract;
+
+      b.vx += ax; b.vy += ay;
+      [b.vx, b.vy] = limit(b.vx, b.vy, {MAX_SPEED});
+    }
+
+    for (const b of boids) {
+      b.x += b.vx; b.y += b.vy;
+      // Wrap edges
+      if (b.x < 0) b.x += W; else if (b.x >= W) b.x -= W;
+      if (b.y < 0) b.y += H; else if (b.y >= H) b.y -= H;
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.lineWidth = 1;
+    for (const b of boids) {
+      const ang = Math.atan2(b.vy, b.vx);
+      const size = 4;
+      ctx.beginPath();
+      ctx.moveTo(b.x + Math.cos(ang)*size*2, b.y + Math.sin(ang)*size*2);
+      ctx.lineTo(b.x + Math.cos(ang+2.5)*size, b.y + Math.sin(ang+2.5)*size);
+      ctx.lineTo(b.x + Math.cos(ang-2.5)*size, b.y + Math.sin(ang-2.5)*size);
+      ctx.closePath();
+      ctx.stroke();
+    }
+  }
+
+  function loop() { step(); draw(); requestAnimationFrame(loop); }
+  loop();
+</script>
