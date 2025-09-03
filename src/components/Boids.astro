@@ -48,8 +48,8 @@
 
   // Rule strengths
   const ALIGN_STRENGTH = 0.065;
-  const COHESION_STRENGTH = 0.014;   // gentler cohesion
-  const SEPARATION_STRENGTH = 0.28;  // stronger separation
+  const COHESION_STRENGTH = 0.008;   // gentler cohesion
+  const SEPARATION_STRENGTH = 0.4;  // stronger separation
 
   const MAX_SPEED = 2.2;
   const MAX_ACCEL = 0.15;            // cap instantaneous acceleration
@@ -62,9 +62,9 @@
   const NOISE = 0.018;               // tiny jitter to avoid crystallizing
 
   // ----- Drag-scatter tuning -----
-  const DRAG_SPEED_THRESHOLD = 550;  // px/s needed to start scattering
-  const DRAG_REPULSE_RADIUS  = 150;  // boids within this get pushed
-  const DRAG_REPULSE_MAX     = 0.45; // max extra accel from drag
+  const DRAG_SPEED_THRESHOLD = 500;  // px/s needed to start scattering
+  const DRAG_REPULSE_RADIUS  = 160;  // boids within this get pushed
+  const DRAG_REPULSE_MAX     = 0.65; // max extra accel from drag
   const DRAG_NOISE_BOOST     = 0.04; // extra noise while dragging fast
 
   // ----- State -----
