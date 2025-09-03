@@ -1,28 +1,43 @@
 ---
-/* no frontmatter constants; everything happens client-side */
+/* Full-viewport background boids */
 ---
 <style>
-  .boids-wrap { position: relative; width: 100%; height: 500px; }
-  canvas { width: 100%; height: 100%; display: block; border-radius: 16px; }
+  /* Make this a fixed, page-wide layer behind your content */
+  .boids-layer {
+    position: fixed;
+    inset: 0;                 /* top/right/bottom/left: 0 */
+    z-index: 0;               /* behind main content (we'll set content z-index:1) */
+    pointer-events: none;     /* don't block clicks/scrolls */
+  }
+  .boids-layer canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
 </style>
 
-<div class="boids-wrap">
+<div class="boids-layer" aria-hidden="true">
   <canvas id="boids"></canvas>
 </div>
 
 <script is:inline>
+  const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
   const canvas = document.getElementById('boids');
   const ctx = canvas.getContext('2d');
 
   function resize() {
-    const r = canvas.parentElement.getBoundingClientRect();
-    canvas.width = Math.floor(r.width);
-    canvas.height = Math.floor(r.height);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    canvas.width = Math.floor(w * DPR);
+    canvas.height = Math.floor(h * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);  // crisp lines on HiDPI
   }
   resize();
   window.addEventListener('resize', resize);
 
-  // Sim params (now inside client script)
+  // Sim params
   const NUM = 300;
   const MOUSE_FORCE = 0.08;
   const MAX_SPEED = 2.2;
@@ -36,19 +51,23 @@
   const rand = (a,b)=>a+Math.random()*(b-a);
 
   const boids = Array.from({length: NUM}, () => ({
-    x: rand(0, canvas.width), y: rand(0, canvas.height),
-    vx: rand(-1,1), vy: rand(-1,1),
+    x: rand(0, canvas.width / DPR),
+    y: rand(0, canvas.height / DPR),
+    vx: rand(-1,1),
+    vy: rand(-1,1),
   }));
 
-  const mouse = { x: canvas.width/2, y: canvas.height/2, down:false };
-  canvas.addEventListener('mousemove', e => {
-    const r = canvas.getBoundingClientRect();
-    mouse.x = (e.clientX - r.left) * (canvas.width / r.width);
-    mouse.y = (e.clientY - r.top)  * (canvas.height / r.height);
-  });
-  canvas.addEventListener('mousedown', ()=>mouse.down=true);
-  canvas.addEventListener('mouseup', ()=>mouse.down=false);
-  canvas.addEventListener('mouseleave', ()=>mouse.down=false);
+  // Follow the mouse anywhere on the page (not just inside canvas)
+  const mouse = { x: window.innerWidth/2, y: window.innerHeight/2, down:false };
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener('mousedown', ()=>mouse.down=true);
+  window.addEventListener('mouseup', ()=>mouse.down=false);
+  window.addEventListener('mouseleave', ()=>mouse.down=false);
+  // Touch support
+  window.addEventListener('touchmove', e => {
+    const t = e.touches[0]; if (!t) return;
+    mouse.x = t.clientX; mouse.y = t.clientY;
+  }, {passive:true});
 
   const limit = (vx, vy, max) => {
     const s = Math.hypot(vx, vy);
@@ -57,7 +76,7 @@
   };
 
   function step() {
-    const W = canvas.width, H = canvas.height;
+    const W = canvas.width / DPR, H = canvas.height / DPR;
 
     for (let i=0;i<boids.length;i++) {
       const b = boids[i];
@@ -68,8 +87,8 @@
         const o = boids[j];
         const dx = o.x - b.x, dy = o.y - b.y;
         const d = Math.hypot(dx, dy);
-        if (d < ALIGN_DIST)   { alignX += o.vx; alignY += o.vy; alignN++; }
-        if (d < COHESION_DIST){ cohX += o.x;   cohY += o.y;   cohN++; }
+        if (d < ALIGN_DIST)    { alignX += o.vx; alignY += o.vy; alignN++; }
+        if (d < COHESION_DIST) { cohX += o.x;   cohY += o.y;   cohN++; }
         if (d < SEPARATION_DIST){ sepX -= dx/(d||1); sepY -= dy/(d||1); sepN++; }
       }
 
@@ -78,7 +97,7 @@
       if (cohN)   { ax += ((cohX/cohN) - b.x) * COHESION_STRENGTH;   ay += ((cohY/cohN) - b.y) * COHESION_STRENGTH; }
       if (sepN)   { ax += (sepX/sepN) * SEPARATION_STRENGTH;         ay += (sepY/sepN) * SEPARATION_STRENGTH; }
 
-      // Mouse attractor
+      // Mouse attractor (viewport coords already)
       const mdx = mouse.x - b.x, mdy = mouse.y - b.y;
       const md = Math.hypot(mdx, mdy) || 1;
       const attract = MOUSE_FORCE * (mouse.down ? 2.0 : 1.0);
@@ -87,18 +106,16 @@
 
       b.vx += ax; b.vy += ay;
       [b.vx, b.vy] = limit(b.vx, b.vy, MAX_SPEED);
-    }
-
-    for (const b of boids) {
       b.x += b.vx; b.y += b.vy;
+
       // Wrap edges
-      if (b.x < 0) b.x += canvas.width; else if (b.x >= canvas.width) b.x -= canvas.width;
-      if (b.y < 0) b.y += canvas.height; else if (b.y >= canvas.height) b.y -= canvas.height;
+      if (b.x < 0) b.x += W; else if (b.x >= W) b.x -= W;
+      if (b.y < 0) b.y += H; else if (b.y >= H) b.y -= H;
     }
   }
 
   function draw() {
-    const W = canvas.width, H = canvas.height;
+    const W = canvas.width / DPR, H = canvas.height / DPR;
     ctx.clearRect(0,0,W,H);
     ctx.lineWidth = 1;
     for (const b of boids) {

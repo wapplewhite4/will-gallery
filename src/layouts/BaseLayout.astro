@@ -3,7 +3,7 @@ import "~/styles/reset.css";
 import "~/styles/base.css";
 import smartypants from "smartypants";
 
-const siteName = "Astro Photo Grid";
+const siteName = "William Applewhite - Portfolio";
 
 export interface Props {
   title: string;
@@ -50,25 +50,25 @@ const pageTitle = Astro.url.pathname === "/" ? title : `${title} · ${siteName}`
         border-bottom: 1px solid rgba(0,0,0,0.08);
       }
       .navbar-inner {
-        max-width: 72rem;        /* keeps the whole bar constrained */
+        max-width: 72rem;
         margin: 0 auto;
-        padding: 0.75rem 0 0.75rem 0.5rem;  /* less left padding */
+        padding: 0.75rem 0 0.75rem 0.5rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
       .brand {
         font-weight: 700;
-        font-size: clamp(1.5rem, 2vw + 1rem, 2.5rem); /* responsive size */
+        font-size: clamp(1.5rem, 2vw + 1rem, 2.5rem);
         line-height: 1.1;
         letter-spacing: -0.01em;
-        color: #111827; /* neutral-900 */
+        color: #111827;
         text-decoration: none;
       }
       .brand:hover { opacity: 0.8; }
       .links {
         display: flex;
-        gap: 1.25rem; /* 20px */
+        gap: 1.25rem;
         font-size: 0.95rem;
         font-weight: 500;
       }
@@ -77,6 +77,13 @@ const pageTitle = Astro.url.pathname === "/" ? title : `${title} · ${siteName}`
         text-decoration: none;
       }
       .links a:hover { text-decoration: underline; }
+
+      /* NEW: ensure page content sits above the fixed Boids layer (z-index: 1) */
+      .site-content {
+        position: relative;
+        z-index: 1;
+      }
+
       @media (max-width: 480px) {
         .navbar-inner { padding: 0.5rem 0.75rem; }
         .links { gap: 0.9rem; font-size: 0.9rem; }
@@ -85,7 +92,6 @@ const pageTitle = Astro.url.pathname === "/" ? title : `${title} · ${siteName}`
   </head>
 
   <body>
-    <!-- ✅ Navbar is now inside <body> -->
     <header class="navbar">
       <nav class="navbar-inner">
         <a href="/" class="brand">William Applewhite</a>
@@ -97,7 +103,9 @@ const pageTitle = Astro.url.pathname === "/" ? title : `${title} · ${siteName}`
       </nav>
     </header>
 
-    <!-- Page content -->
-    <slot />
+    <!-- Wrap content so it layers above the fixed boids background -->
+    <main class="site-content">
+      <slot />
+    </main>
   </body>
 </html>
