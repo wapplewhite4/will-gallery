@@ -47,7 +47,7 @@
   const SEPARATION_DIST = 32;
 
   // Rule strengths
-  const ALIGN_STRENGTH = 0.06;
+  const ALIGN_STRENGTH = 0.055;
   const COHESION_STRENGTH = 0.010;   // gentler cohesion
   const SEPARATION_STRENGTH = 0.35;  // stronger separation
 
@@ -55,11 +55,11 @@
   const MAX_ACCEL = 0.15;            // cap instantaneous acceleration
 
   // Mouse attraction with dead zone and smooth falloff
-  const MOUSE_MAX_FORCE = 0.06;
-  const MOUSE_DEAD_RADIUS = 80;      // no attraction inside this radius
-  const MOUSE_FALLOFF = 180;         // how quickly force ramps beyond dead zone
+  const MOUSE_MAX_FORCE = 0.05;
+  const MOUSE_DEAD_RADIUS = 90;      // no attraction inside this radius
+  const MOUSE_FALLOFF = 160;         // how quickly force ramps beyond dead zone
 
-  const NOISE = 0.02;                // tiny jitter to avoid crystallizing
+  const NOISE = 0.028;                // tiny jitter to avoid crystallizing
 
   // ----- State -----
   const rand = (a,b)=>a+Math.random()*(b-a);
