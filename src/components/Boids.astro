@@ -1,5 +1,5 @@
 ---
-/* Full-viewport background boids layer */
+/* Full-viewport background boids layer with drag-scatter */
 ---
 <style>
   /* Fixed, page-wide canvas behind content */
@@ -59,7 +59,13 @@
   const MOUSE_DEAD_RADIUS = 90;      // no attraction inside this radius
   const MOUSE_FALLOFF = 160;         // how quickly force ramps beyond dead zone
 
-  const NOISE = 0.028;                // tiny jitter to avoid crystallizing
+  const NOISE = 0.028;               // tiny jitter to avoid crystallizing
+
+  // ----- Drag-scatter tuning -----
+  const DRAG_SPEED_THRESHOLD = 500;  // px/s needed to start scattering
+  const DRAG_REPULSE_RADIUS  = 140;  // boids within this get pushed
+  const DRAG_REPULSE_MAX     = 0.45; // max extra accel from drag
+  const DRAG_NOISE_BOOST     = 0.02; // extra noise while dragging fast
 
   // ----- State -----
   const rand = (a,b)=>a+Math.random()*(b-a);
@@ -71,16 +77,34 @@
     vy: rand(-1, 1),
   }));
 
-  // Mouse (tracked across the whole window)
-  const mouse = { x: window.innerWidth/2, y: window.innerHeight/2, down:false };
-  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  // Mouse with velocity tracking (for drag-scatter)
+  const mouse = {
+    x: window.innerWidth/2, y: window.innerHeight/2,
+    px: window.innerWidth/2, py: window.innerHeight/2,
+    vx: 0, vy: 0, speed: 0,
+    down: false, t: performance.now()
+  };
+
+  function updateMouse(eX, eY) {
+    const now = performance.now();
+    const dt = Math.max(1, now - mouse.t);     // ms
+    mouse.vx = (eX - mouse.px) * (1000 / dt);  // px/s
+    mouse.vy = (eY - mouse.py) * (1000 / dt);  // px/s
+    mouse.speed = Math.hypot(mouse.vx, mouse.vy);
+    mouse.px = mouse.x; mouse.py = mouse.y;
+    mouse.x = eX; mouse.y = eY;
+    mouse.t = now;
+  }
+
+  // Track mouse/touch across the whole window
+  window.addEventListener('mousemove', e => updateMouse(e.clientX, e.clientY));
   window.addEventListener('mousedown', ()=>mouse.down=true);
   window.addEventListener('mouseup', ()=>mouse.down=false);
   window.addEventListener('mouseleave', ()=>mouse.down=false);
-  // Touch support
+
   window.addEventListener('touchmove', e => {
     const t = e.touches && e.touches[0]; if (!t) return;
-    mouse.x = t.clientX; mouse.y = t.clientY;
+    updateMouse(t.clientX, t.clientY);
   }, {passive:true});
   window.addEventListener('touchstart', ()=>mouse.down=true, {passive:true});
   window.addEventListener('touchend', ()=>mouse.down=false, {passive:true});
@@ -143,7 +167,28 @@
         ay += (mdy / md) * k * pressBoost;
       }
 
-      // Tiny noise to prevent perfect locking
+      // --- Drag-scatter impulse (proportional to cursor speed & proximity) ---
+      if (mouse.speed > DRAG_SPEED_THRESHOLD) {
+        const dxs = b.x - mouse.x, dys = b.y - mouse.y;
+        const ds  = Math.hypot(dxs, dys) || 1;
+
+        if (ds < DRAG_REPULSE_RADIUS) {
+          const near   = 1 - (ds / DRAG_REPULSE_RADIUS); // 0..1 (closer = stronger)
+          const speedK = Math.min(1, (mouse.speed - DRAG_SPEED_THRESHOLD) / DRAG_SPEED_THRESHOLD);
+          const kick   = DRAG_REPULSE_MAX * near * (0.6 + 0.4 * speedK); // gentle onset
+
+          // push away from cursor
+          ax += (dxs / ds) * kick;
+          ay += (dys / ds) * kick;
+
+          // temporary extra randomness while dragging fast
+          ax += (Math.random() - 0.5) * DRAG_NOISE_BOOST;
+          ay += (Math.random() - 0.5) * DRAG_NOISE_BOOST;
+        }
+      }
+      // (If you only want scatter while mouse is pressed, gate with: if (mouse.down && mouse.speed > DRAG_SPEED_THRESHOLD) { ... })
+
+      // Tiny baseline noise to prevent perfect locking
       ax += (Math.random() - 0.5) * NOISE;
       ay += (Math.random() - 0.5) * NOISE;
 
