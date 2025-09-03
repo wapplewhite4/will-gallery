@@ -48,8 +48,8 @@
 
   // Rule strengths
   const ALIGN_STRENGTH = 0.055;
-  const COHESION_STRENGTH = 0.010;   // gentler cohesion
-  const SEPARATION_STRENGTH = 0.35;  // stronger separation
+  const COHESION_STRENGTH = 0.008;   // gentler cohesion
+  const SEPARATION_STRENGTH = 0.45;  // stronger separation
 
   const MAX_SPEED = 2.2;
   const MAX_ACCEL = 0.15;            // cap instantaneous acceleration
@@ -62,10 +62,10 @@
   const NOISE = 0.028;               // tiny jitter to avoid crystallizing
 
   // ----- Drag-scatter tuning -----
-  const DRAG_SPEED_THRESHOLD = 500;  // px/s needed to start scattering
-  const DRAG_REPULSE_RADIUS  = 140;  // boids within this get pushed
-  const DRAG_REPULSE_MAX     = 0.45; // max extra accel from drag
-  const DRAG_NOISE_BOOST     = 0.02; // extra noise while dragging fast
+  const DRAG_SPEED_THRESHOLD = 350;  // px/s needed to start scattering
+  const DRAG_REPULSE_RADIUS  = 160;  // boids within this get pushed
+  const DRAG_REPULSE_MAX     = 0.65; // max extra accel from drag
+  const DRAG_NOISE_BOOST     = 0.04; // extra noise while dragging fast
 
   // ----- State -----
   const rand = (a,b)=>a+Math.random()*(b-a);
