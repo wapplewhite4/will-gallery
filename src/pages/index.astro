@@ -14,7 +14,8 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
   title="William Applewhite - Portfolio"
   description="Artwork and projects by William Applewhite."
 >
-<Boids />
+  <Boids />
+
   <section class="justified-gallery" id="photoswipe">
     {
       Object.entries(images).map(async ([_path, image], index) => {
@@ -23,11 +24,8 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
           <a
             style={`--width: ${imageData.width}; --height: ${imageData.height};`}
             href={imageData.src}
-            target="_blank"
             data-fancybox="gallery"
           >
-            <!-- Bigger responsive candidates for sharp thumbs on Retina -->
-            <!-- Estimated on-screen width per item for your justified rows -->
             <Image
               src={imageData}
               alt=""
@@ -45,75 +43,76 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
 </BaseLayout>
 
 <script>
-  import { Fancybox } from "@fancyapps/ui/dist/fancybox/";
+  // Import the JS module inside a normal script tag (no is:inline)
+  import { Fancybox } from "@fancyapps/ui";
 
-  Fancybox.bind("[data-fancybox]", {
-    theme: "auto",
-    mainStyle: {
-      "--f-button-width": "44px",
-      "--f-button-height": "44px",
-      "--f-button-border-radius": "50%",
-      "--f-toolbar-padding": "16px",
-    },
+  // Bind only to our gallery anchors and disable wrap-around
+  Fancybox.bind("[data-fancybox='gallery']", {
     Carousel: {
-      Arrows: false,
-      Toolbar: {
-        display: {
-          left: [],
-          middle: [],
-          right: ["close"],
-        },
-      },
+      infinite: false,          // <-- prevents swiping past the last slide
       transition: "slide",
+      // You can also tweak friction if desired:
+      // friction: 0.88,
     },
+    dragToClose: false,         // optional: reduces accidental closes on mobile
+    // Minimal UI (close button only)
+    Toolbar: {
+      display: {
+        left: [],
+        middle: [],
+        right: ["close"],
+      },
+    },
+    // Example styling hooks
+    theme: "auto",
+    mainClass: "",
   });
 </script>
 
 <style>
   .justified-gallery {
-    /* ↓ You can lower min-height a bit to make tiles smaller & crisper without huge files */
     --padding: max(2.5vw, 12px);
     --space: max(2.5vw, 12px);
-    --min-height: clamp(180px, 18vw, 360px); /* was clamp(200px, 20vw, 400px) */
+    --min-height: clamp(180px, 18vw, 360px);
 
     padding: var(--padding);
     display: flex;
     flex-wrap: wrap;
     gap: var(--space);
+  }
 
-    a {
-      flex-grow: calc(var(--width) * (100000 / var(--height)));
-      flex-basis: calc(var(--min-height) * (var(--width) / var(--height)));
-      aspect-ratio: var(--width) / var(--height);
-      overflow: hidden;
-      opacity: 1;
-      transition: all 0.05s ease-in-out;
-    }
+  .justified-gallery a {
+    flex-grow: calc(var(--width) * (100000 / var(--height)));
+    flex-basis: calc(var(--min-height) * (var(--width) / var(--height)));
+    aspect-ratio: var(--width) / var(--height);
+    overflow: hidden;
+    opacity: 1;
+    transition: all 0.05s ease-in-out;
+  }
 
-    a img {
-      display: block;
-      object-fit: cover;
-      height: 100%;
-      width: 100%;
-    }
+  .justified-gallery a img {
+    display: block;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+  }
 
-    a:focus-visible {
-      outline: 3px solid var(--outline);
-      outline-offset: 2px;
-      transform: scale(1.05);
-      z-index: 1;
-      border-radius: 2px;
-      box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.1);
-    }
+  .justified-gallery a:focus-visible {
+    outline: 3px solid var(--outline);
+    outline-offset: 2px;
+    transform: scale(1.05);
+    z-index: 1;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.1);
+  }
 
-    a.hidden {
-      transition: opacity 0.4s ease-in-out;
-      opacity: 0;
-    }
+  .justified-gallery a.hidden {
+    transition: opacity 0.4s ease-in-out;
+    opacity: 0;
+  }
 
-    &::after {
-      content: " ";
-      flex-grow: 1000000000;
-    }
+  .justified-gallery::after {
+    content: " ";
+    flex-grow: 1000000000;
   }
 </style>
