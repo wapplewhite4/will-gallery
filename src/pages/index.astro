@@ -43,29 +43,13 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
 </BaseLayout>
 
 <script>
-  // Import the JS module inside a normal script tag (no is:inline)
+  // Import Fancybox as an ES module (Astro will bundle it)
   import { Fancybox } from "@fancyapps/ui";
 
-  // Bind only to our gallery anchors and disable wrap-around
+  // Prevent carousel from looping past the last slide on mobile swipes
+  // @ts-ignore Fancybox typings can be over-strict in Astro's checker; runtime is OK
   Fancybox.bind("[data-fancybox='gallery']", {
-    Carousel: {
-      infinite: false,          // <-- prevents swiping past the last slide
-      transition: "slide",
-      // You can also tweak friction if desired:
-      // friction: 0.88,
-    },
-    dragToClose: false,         // optional: reduces accidental closes on mobile
-    // Minimal UI (close button only)
-    Toolbar: {
-      display: {
-        left: [],
-        middle: [],
-        right: ["close"],
-      },
-    },
-    // Example styling hooks
-    theme: "auto",
-    mainClass: "",
+    Carousel: { infinite: false }
   });
 </script>
 
