@@ -1,8 +1,25 @@
 :root {
   color-scheme: light dark;
+
+  /* Base colors */
   --bg: #ffffff;
   --bg-dark: #000000;
-  --outline: #ffffff;
+
+  --surface: #ffffff;
+  --surface-dark: #0f0f0f;
+
+  --muted-bg: #fafafa;
+  --muted-bg-dark: #111111;
+
+  --text: #000000;
+  --text-dark: #ffffff;
+
+  --muted-text: rgba(0, 0, 0, 0.7);
+  --muted-text-dark: rgba(255, 255, 255, 0.75);
+
+  --border: rgba(0, 0, 0, 0.12);
+  --border-dark: rgba(255, 255, 255, 0.18);
+
   --font:
     system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -10,5 +27,27 @@
 
 body {
   background-color: light-dark(var(--bg), var(--bg-dark));
+  color: light-dark(var(--text), var(--text-dark));
   font-family: var(--font);
+}
+
+.nav-back {
+  margin-bottom: 16px;
+}
+
+.nav-back a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid light-dark(var(--border), var(--border-dark));
+  text-decoration: none;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-back a:hover {
+  background: light-dark(var(--muted-bg), var(--muted-bg-dark));
 }

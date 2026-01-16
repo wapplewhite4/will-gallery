@@ -1,0 +1,190 @@
+---
+/**
+ * /exhibition page
+ *
+ * Purpose:
+ * - Static exhibition sales page for gallery visitors
+ * - Lists all artworks with price, availability, and a link to Stripe Payment Links
+ *
+ * How availability works (static approach):
+ * - Each artwork has a "status" field in src/data/exhibition-artworks.json
+ * - Change status to "sold" to automatically disable the Buy button and show SOLD
+ */
+import artworks from "../data/exhibition-artworks.json";
+
+/**
+ * Optional: Sort available items first, then sold items.
+ * Keeps the page useful during the show.
+ */
+const sorted = [...artworks].sort((a, b) => {
+  if (a.status === b.status) return a.title.localeCompare(b.title);
+  return a.status === "available" ? -1 : 1;
+});
+
+/**
+ * Optional: Small summary counts for quick at-a-glance info.
+ */
+const total = sorted.length;
+const availableCount = sorted.filter(a => a.status === "available").length;
+const soldCount = total - availableCount;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exhibition – Available Works</title>
+
+    <style>
+      /* Minimal, self-contained styling. Replace with your site's global styles if you have them. */
+      :root { --max: 1100px; }
+      body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      main { max-width: var(--max); margin: 0 auto; padding: 24px; }
+      h1 { margin: 0 0 8px; font-size: 28px; }
+      .sub { margin: 0 0 18px; opacity: 0.8; line-height: 1.4; }
+      .meta { display: flex; gap: 12px; flex-wrap: wrap; margin: 0 0 24px; font-size: 14px; opacity: 0.85; }
+      .pill { border: 1px solid rgba(0,0,0,0.12); border-radius: 999px; padding: 6px 10px; }
+
+      /* Return/Home button */
+      .nav-back { margin-bottom: 16px; }
+      .nav-back a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(0,0,0,0.12);
+        text-decoration: none;
+        color: inherit;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .nav-back a:hover { background: rgba(0,0,0,0.04); }
+
+      /* Buyer clarity block */
+      .buyer-info {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid rgba(0,0,0,0.12);
+        border-radius: 14px;
+        background: #fafafa;
+      }
+      .buyer-info h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+      .buyer-info ul {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .buyer-info li {
+        margin-bottom: 8px;
+      }
+
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+      .card { border: 1px solid rgba(0,0,0,0.12); border-radius: 14px; overflow: hidden; background: #fff; }
+      .img { aspect-ratio: 1 / 1; background: #f4f4f4; display: block; width: 100%; object-fit: cover; }
+      .content { padding: 14px; display: grid; gap: 8px; }
+      .title { font-weight: 650; line-height: 1.2; }
+      .details { font-size: 13px; opacity: 0.85; line-height: 1.35; }
+      .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; }
+      .badge { font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.15); }
+      .badge.sold { opacity: 0.75; }
+      .price { font-weight: 650; }
+      .btn {
+        display: inline-block;
+        text-align: center;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(0,0,0,0.18);
+        text-decoration: none;
+        color: inherit;
+        font-weight: 600;
+      }
+      .btn:hover { background: rgba(0,0,0,0.04); }
+      .btn.disabled {
+        opacity: 0.45;
+        pointer-events: none;
+        user-select: none;
+      }
+      footer { margin-top: 28px; font-size: 13px; opacity: 0.8; line-height: 1.5; }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <nav class="nav-back">
+        <a href="/" aria-label="Return to homepage">← Home</a>
+      </nav>
+
+      <h1>Exhibition</h1>
+      <p class="sub">
+        Original works available for purchase. Purchased pieces remain on display until the end of the exhibition.
+        Pickup (or delivery coordination) will happen after the show concludes.
+      </p>
+
+      <div class="meta">
+        <span class="pill"><strong>{availableCount}</strong> available</span>
+        <span class="pill"><strong>{soldCount}</strong> sold</span>
+        <span class="pill"><strong>{total}</strong> total works</span>
+      </div>
+
+      <section class="buyer-info">
+        <h2>Purchase Information</h2>
+        <ul>
+          <li><strong>Availability:</strong> All works listed as “Available” are for sale. Once purchased, works will be marked as <strong>SOLD</strong>.</li>
+          <li><strong>Exhibition Hold:</strong> Purchased artworks will remain on display until the exhibition concludes.</li>
+          <li><strong>Pickup / Delivery:</strong> Pickup or delivery coordination will occur after the show ends.</li>
+          <li><strong>Payments:</strong> Payments are processed securely via Stripe. Buyers receive an email receipt upon purchase.</li>
+          <li><strong>Sales Policy:</strong> All sales are final unless the artwork is damaged prior to pickup.</li>
+        </ul>
+      </section>
+
+      <section class="grid">
+        {sorted.map((a) => {
+          const isSold = a.status === "sold";
+          return (
+            <article class="card">
+              {/* Image paths are served from /public, so they start with /images/... */}
+              <img class="img" src={a.image} alt={a.title} loading="lazy" />
+
+              <div class="content">
+                <div class="title">{a.title} <span style="opacity:.65;">({a.year})</span></div>
+
+                <div class="details">
+                  <div>{a.medium}</div>
+                  <div>{a.size}</div>
+                </div>
+
+                <div class="row">
+                  <span class={`badge ${isSold ? "sold" : ""}`}>{isSold ? "SOLD" : "Available"}</span>
+                  <span class="price">${a.price} {a.currency}</span>
+                </div>
+
+                {/* Buy button: disabled when sold */}
+                <a
+                  class={`btn ${isSold ? "disabled" : ""}`}
+                  href={isSold ? "#" : a.stripePaymentLink}
+                  target={isSold ? undefined : "_blank"}
+                  rel={isSold ? undefined : "noopener noreferrer"}
+                  aria-disabled={isSold ? "true" : "false"}
+                >
+                  {isSold ? "Unavailable" : "Buy via Stripe"}
+                </a>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+
+      <footer>
+        <div><strong>Questions?</strong> Email: <a href="mailto:wapplewhite4@gmail.com">wapplewhite4@gmail.com</a></div>
+        <div style="margin-top:6px;">
+          Payments are processed securely via Stripe. You will receive an email receipt after purchase.
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
